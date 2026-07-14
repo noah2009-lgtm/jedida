@@ -231,8 +231,7 @@ Click the button below.<br>
 <audio controls>
     <source
     src="https://raw.githubusercontent.com/noah2009-lgtm/jedida/main/Chik%C3%A9%20%26%20Simi%20%E2%80%93%20Running%20(To%20You)%20%5BOfficial%20Video%5D%20%5B9DpejbEJ5Gs%5D.mp3"
-    type="audio/mp3"
-    
+    type="audio/mp3">
 </audio>
 
 
@@ -290,37 +289,63 @@ Click the button below.<br>
 <script>
 
 function birthday(){
-  alert("🎉 Happy Birthday Jedidah! 🎂\n\nThere is something I've always wanted to tell you. Honestly, deep down in my heart, I find a part that wants to create a special and closer bond than we have now. You mean a lot to me! 💕");
+  // Short example message (visible to anyone who views source).
+  // If you want this to be private, do NOT put private/confidential text here — use a server-side message or protected modal.
+  alert("🎉 Happy Birthday Jedidah! 🎂\n\nI hope this little site makes your day special. Click OK to continue enjoying the surprise!");
 }
+
+// Form submit handler that posts to Formspree (no backend required).
+// Steps for you: create a free form at https://formspree.io and replace YOUR_FORM_ID below with your form's ID (looks like `f/abcde123`).
 
 document.getElementById('birthdayForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const message = document.getElementById('message').value;
-  
-  // Send using FormSubmit (free service, no backend required)
+
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const message = document.getElementById('message').value.trim();
+
+  if (!name || !email || !message) {
+    alert('Please fill in all fields before sending.');
+    return;
+  }
+
+  // Replace YOUR_FORM_ID with the Formspree form ID you get when you create the form
+  // Example endpoint: https://formspree.io/f/mnqlrjwe
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+
   const formData = new FormData();
   formData.append('name', name);
   formData.append('email', email);
   formData.append('message', message);
+  // Include sender address so you can reply
+  formData.append('_replyto', email);
+  // Optionally set a subject so emails are easier to find
+  formData.append('_subject', `Birthday message from ${name}`);
+  // Turn off Formspree's captcha if you want (depends on your Formspree settings)
   formData.append('_captcha', 'false');
-  
-  fetch('https://formspree.io/f/xyzpqrst', {
+
+  fetch(FORMSPREE_ENDPOINT, {
     method: 'POST',
+    headers: {
+      'Accept': 'application/json'
+    },
     body: formData
   })
-  .then(response => {
-    if(response.ok) {
-      document.getElementById('birthdayForm').reset();
-      document.getElementById('successMessage').style.display = 'block';
-      setTimeout(() => {
-        document.getElementById('successMessage').style.display = 'none';
-      }, 5000);
-    }
+  .then(response => response.json().catch(() => ({})))
+  .then(data => {
+    // Formspree returns JSON. Consider success if there are no errors.
+    document.getElementById('birthdayForm').reset();
+    const d = document.getElementById('successMessage');
+    d.textContent = '✅ Your message has been sent successfully!';
+    d.style.display = 'block';
+    setTimeout(() => {
+      d.style.display = 'none';
+    }, 5000);
   })
-  .catch(error => console.log('Error:', error));
+  .catch(error => {
+    console.error('Form submit error:', error);
+    alert('Sorry, there was an error sending your message. Please try again later.');
+  });
 });
 
 </script>
